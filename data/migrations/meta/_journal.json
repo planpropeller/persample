@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1708941586140,
+      "tag": "0000_hard_lethal_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1708942000111,
+      "tag": "0001_dashing_marvel_boy",
+      "breakpoints": true
+    }
+  ]
+}

@@ -2,16 +2,20 @@
     "name": "backend-test",
     "version": "1.0.0",
     "description": "Basic setup to for the backend engineer test",
-    "main": "index.js",
+    "main": "server.ts",
     "scripts": {
-        "start": "ts-node src/index.ts",
-        "test": "set DEBUG=* && jest --testPathPattern=test --coverage"
+        "start": "ts-node server.ts",
+        "test": "set DEBUG=* && jest --testPathPattern=test --coverage --collectCoverageFrom=src/**",
+        "generate": "drizzle-kit generate:sqlite",
+        "push": "drizzle-kit push:sqlite"
     },
     "author": "Christoph Fey",
     "license": "ISC",
     "dependencies": {
+        "@libsql/client": "^0.5.1",
         "cors": "^2.8.5",
         "dotenv": "^16.3.1",
+        "drizzle-orm": "^0.29.4",
         "express": "^4.18.2"
     },
     "devDependencies": {
@@ -21,6 +25,7 @@
         "@types/supertest": "^6.0.2",
         "@typescript-eslint/eslint-plugin": "^5.60.1",
         "@typescript-eslint/parser": "^5.60.1",
+        "drizzle-kit": "^0.20.14",
         "eslint": "^8.43.0",
         "eslint-config-prettier": "^8.8.0",
         "eslint-plugin-prettier": "^4.2.1",
