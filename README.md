@@ -9,6 +9,9 @@ empty unit test.
 This project uses Drizzle ORM and Zod for object-relational mapping
 and validation respectively.
 
+Drizzle writes to different Sqlite databases dependent on `NODE_ENV`,
+according to configuration in `./config.ts`.
+
 ## Scripts
 
 `npm start` starts the server
