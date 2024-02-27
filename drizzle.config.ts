@@ -10,5 +10,5 @@ export default {
         url: config.databasePath,
     },
     verbose: true,
-    strict: true,
+    strict: process.env.NODE_ENV === 'production',
 } satisfies Config;
