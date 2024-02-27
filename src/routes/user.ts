@@ -1,18 +1,31 @@
 import { Router, Request, Response } from 'express';
 import db from '../db';
 import { users } from '../../data/schema';
-import { paginationSchema } from '../pagination';
+import { paginate } from '../pagination';
+import { UserSchema } from '../models/user';
+import { z } from 'zod';
 
 const router = Router();
 
 router.post('/users', async (req: Request, res: Response) => {
-    const newUser = req.body;
-    await db.insert(users).values(newUser);
-    res.sendStatus(201);
+    try {
+        const { email, name, picture, bio } = UserSchema.parse(req.body);
+        await db.insert(users).values({ email, name, picture, bio });
+        res.sendStatus(201);
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            res.status(422).json({
+                message: 'Invalid user data',
+                errors: error.issues.map((issue) => issue.message),
+            });
+        } else {
+            res.status(500).json({ message: 'Failed to create user', error: error.message });
+        }
+    }
 });
 
 router.get('/users', async (req: Request, res: Response) => {
-    const { page, per_page } = paginationSchema.parse(req.query);
+    const { page, per_page } = paginate(req.query);
     const users = await db.query.users.findMany({
         limit: per_page,
         offset: page * per_page,

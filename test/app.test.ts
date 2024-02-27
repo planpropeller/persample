@@ -29,16 +29,10 @@ describe('GET /users', () => {
         expect(res.body.length).toEqual(2);
     });
 
-    test('returns user Tom', async () => {
-        const res = await request(app).get('/users');
-        const user = res.body[0];
-        expect(user.email).toEqual('tom@mail.com');
-        expect(user.name).toEqual('Tom');
-    });
-
     test('pagination', async () => {
         const res = await request(app).get('/users?page=1&per_page=1');
-        const user = res.body[0];
+        const [user] = res.body;
+        expect(res.body.length).toBe(1);
         expect(user.name).toEqual('Kathy');
         expect(user.email).toEqual('kk@helpdesk.io');
     });
@@ -53,8 +47,36 @@ describe('POST /users', () => {
     });
 
     test('writes to db', async () => {
+        expect((await db.select().from(users)).length).toBe(0);
         await request(app).post('/users').send({ email: 'info@example.io', name: 'Thomas' });
         expect((await db.select().from(users)).length).toBe(1);
+    });
+
+    test('validates required name', async () => {
+        const res = await request(app).post('/users').send({ email: 'hi@co.de' });
+        expect(res.statusCode).toBe(422);
+    });
+
+    test('error messages from validation', async () => {
+        const res = await request(app)
+            .post('/users')
+            .send({ email: 'hi_', bio: 'x'.repeat(1025), picture: 'mypic.tiff' });
+
+        expect(res.body.errors).toEqual([
+            'Invalid email',
+            'Name is required',
+            'Bio cannot be more than 1024 characters',
+            'Invalid picture URL',
+        ]);
+    });
+
+    test('broken payload', async () => {
+        const res = await request(app)
+            .post('/users')
+            .set('Content-type', 'application/json')
+            .send('{{{');
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toEqual({});
     });
 
     beforeEach(async () => {

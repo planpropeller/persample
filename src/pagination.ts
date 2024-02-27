@@ -10,4 +10,4 @@ const paginate = (query: Query) => {
     return paginationSchema.parse(query);
 };
 
-export { paginationSchema, paginate };
+export { paginate };

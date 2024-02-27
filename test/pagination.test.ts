@@ -2,7 +2,7 @@ import { expect, test, describe } from '@jest/globals';
 
 import { paginate } from '../src/pagination';
 
-describe('pagination for query parameters', () => {
+describe('query parameters for pagination', () => {
     test('parses', () => {
         const q = { page: '5', per_page: '6' };
         const { page: p, per_page: pp } = paginate(q);
@@ -10,7 +10,7 @@ describe('pagination for query parameters', () => {
         expect(pp).toBe(6);
     });
 
-    test('defaults', () => {
+    test('defaults if query params are absent', () => {
         const q = {};
         const { page: p, per_page: pp } = paginate(q);
         expect(p).toBe(0);
