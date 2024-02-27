@@ -1,8 +1,9 @@
 import { Router, Request, Response } from 'express';
 import db from '../db';
 import { users } from '../../data/schema';
-import { paginate } from '../pagination';
+import { orderByCreated, paginate } from '../pagination';
 import { UserSchema } from '../models/user';
+import { desc, asc } from 'drizzle-orm';
 import { z } from 'zod';
 
 const router = Router();
@@ -25,12 +26,18 @@ router.post('/users', async (req: Request, res: Response) => {
 });
 
 router.get('/users', async (req: Request, res: Response) => {
-    const { page, per_page } = paginate(req.query);
-    const users = await db.query.users.findMany({
-        limit: per_page,
-        offset: page * per_page,
-    });
-    res.json(users).status(200);
+    try {
+        const { page, per_page } = paginate(req.query);
+        const order = orderByCreated(req.query);
+        const found = await db.query.users.findMany({
+            limit: per_page,
+            offset: page * per_page,
+            orderBy: order === 'asc' ? [asc(users.createdAt)] : [desc(users.createdAt)],
+        });
+        res.json(found).status(200);
+    } catch (error) {
+        res.sendStatus(400);
+    }
 });
 
 export default router;

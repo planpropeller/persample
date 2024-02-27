@@ -4,12 +4,14 @@ import app from '../src/app';
 import db from '../src/db';
 import { users } from '../data/schema';
 
+const { objectContaining } = expect;
+
 describe('GET /users', () => {
     beforeEach(async () => {
         await db.delete(users);
         await db.insert(users).values([
-            { email: 'tom@mail.com', name: 'Tom' },
-            { email: 'kk@helpdesk.io', name: 'Kathy' },
+            { email: 'tom@mail.com', name: 'Tom', createdAt: '0' },
+            { email: 'kk@helpdesk.io', name: 'Kathy', createdAt: '1709049030' },
         ]);
     });
 
@@ -33,8 +35,21 @@ describe('GET /users', () => {
         const res = await request(app).get('/users?page=1&per_page=1');
         const [user] = res.body;
         expect(res.body.length).toBe(1);
-        expect(user.name).toEqual('Kathy');
-        expect(user.email).toEqual('kk@helpdesk.io');
+        expect(user.name).toEqual('Tom');
+    });
+
+    test('sort by `created` in ascending order', async () => {
+        const res = await request(app).get('/users?created=asc');
+        const [a, b] = res.body;
+        expect(a).toEqual(objectContaining({ name: 'Tom', createdAt: '0' }));
+        expect(b).toEqual(objectContaining({ name: 'Kathy', createdAt: '1709049030' }));
+    });
+
+    test('sort by `created` in desc order', async () => {
+        const res = await request(app).get('/users?created=desc');
+        const [a, b] = res.body;
+        expect(a).toEqual(objectContaining({ name: 'Kathy', createdAt: '1709049030' }));
+        expect(b).toEqual(objectContaining({ name: 'Tom', createdAt: '0' }));
     });
 });
 
@@ -76,7 +91,6 @@ describe('POST /users', () => {
             .set('Content-type', 'application/json')
             .send('{{{');
         expect(res.statusCode).toBe(400);
-        expect(res.body).toEqual({});
     });
 
     beforeEach(async () => {

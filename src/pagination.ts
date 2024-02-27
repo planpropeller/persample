@@ -6,8 +6,17 @@ const paginationSchema = z.object({
     per_page: z.coerce.number().default(10),
 });
 
+const orderByCreatedSchema = z.object({
+    created: z.enum(['asc', 'desc']).default('asc').optional(),
+});
+
+const orderByCreated = (query: Query) => {
+    const { created } = orderByCreatedSchema.parse(query);
+    return created;
+};
+
 const paginate = (query: Query) => {
     return paginationSchema.parse(query);
 };
 
-export { paginate };
+export { paginate, orderByCreated };
