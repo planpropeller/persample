@@ -5,6 +5,7 @@ import { paginate, orderByCreated } from '../pagination';
 import db from '../db';
 import { users } from '../../data/schema';
 import { UserSchema } from '../models/user';
+import { ensureError } from './util';
 
 export async function getUsers(req: Request, res: Response) {
     try {
@@ -23,8 +24,8 @@ export async function getUsers(req: Request, res: Response) {
 
 export async function createUser(req: Request, res: Response) {
     try {
-        const { email, name, picture, bio } = UserSchema.parse(req.body);
-        await db.insert(users).values({ email, name, picture, bio });
+        const userData = UserSchema.parse(req.body);
+        await db.insert(users).values(userData);
         res.sendStatus(201);
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -33,7 +34,10 @@ export async function createUser(req: Request, res: Response) {
                 errors: error.issues.map((issue) => issue.message),
             });
         } else {
-            res.status(500).json({ message: 'Failed to create user', error: error.message });
+            res.status(500).json({
+                message: 'Failed to create user',
+                error: ensureError(error).message,
+            });
         }
     }
 }

@@ -3,7 +3,7 @@ import { UserSchema } from '../src/models/user'; // ?
 import { z } from 'zod';
 
 describe('validation on parse', () => {
-    function error(attributes: object = {}) {
+    function error(attributes: object = {}): z.ZodError | null {
         try {
             UserSchema.parse({
                 email: 'info_server.io',
@@ -14,10 +14,11 @@ describe('validation on parse', () => {
                 return error;
             }
         }
+        return null;
     }
 
     test('error issues', () => {
-        expect(error({ id: 99 }).issues).toEqual([
+        expect(error({ id: 99 })?.issues).toEqual([
             {
                 code: 'invalid_string',
                 message: 'Invalid email',
